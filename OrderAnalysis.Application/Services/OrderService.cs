@@ -33,18 +33,46 @@ namespace OrderAnalysis.Application.Services
 		{
 			var orders = await _orderRepository.GetAllAsync();
 
-			var toplamCiro = orders.SelectMany(x => x.Items).Sum(y => y.SatisFiyat * y.Adet);
+			var urunler = orders.SelectMany(x => x.Items).ToList();
 
-			var toplamNetKar = orders.SelectMany(x => x.Items)
+			var toplamCiro = urunler.Sum(y => y.SatisFiyat * y.Adet);
+
+			var toplamNetKar = urunler
 				.Sum(y => (y.SatisFiyat - y.AlisFiyat - y.KargoBedeli - (y.SatisFiyat * y.KomisyonOrani / 100)) * y.Adet);
 
 			return new SummaryDto
 			{
 				ToplamSiparisSayisi = orders.Count,
-				ToplamUrunAdedi = orders.SelectMany(x => x.Items).Sum(y => y.Adet),
+				ToplamUrunAdedi = urunler.Sum(y => y.Adet),
 				ToplamCiro = toplamCiro,
 				ToplamNetKar = toplamNetKar
 			};
+		}
+
+		public async Task<List<PlatformReportDto>> GetPlatformReportAsync()
+		{
+			var orders = await _orderRepository.GetAllAsync();
+
+			return orders.GroupBy(x => x.Platform).Select(y =>
+			{
+				var urunler = y.SelectMany(z => z.Items).ToList();
+
+				var toplamCiro = urunler.Sum(t => t.SatisFiyat * t.Adet);
+
+				var toplamNetKar = urunler.Sum(t =>
+				{
+					var komisyon = t.SatisFiyat * t.KomisyonOrani / 100;
+					return (t.SatisFiyat - t.AlisFiyat - t.KargoBedeli - komisyon) * t.Adet;
+				});
+
+				return new PlatformReportDto
+				{
+					Platform = y.Key,
+					ToplamCiro = toplamCiro,
+					ToplamNetKar = toplamNetKar,
+					KarMarjiYuzde = Math.Round(toplamNetKar / toplamCiro * 100, 2)
+				};
+			}).ToList();
 		}
 	}
 }

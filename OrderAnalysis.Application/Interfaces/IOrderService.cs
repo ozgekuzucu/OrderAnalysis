@@ -12,5 +12,6 @@ namespace OrderAnalysis.Application.Interfaces
 	{
 		Task CreateOrderAsync(CreateOrderDto createOrderDto);
 		Task<SummaryDto> GetSummaryAsync();
+		Task<List<PlatformReportDto>> GetPlatformReportAsync();
 	}
 }
