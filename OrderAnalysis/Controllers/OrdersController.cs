@@ -4,8 +4,8 @@ using OrderAnalysis.Application.Interfaces;
 
 namespace OrderAnalysis.API.Controllers
 {
-	[ApiController]
 	[Route("api/orders")]
+	[ApiController]
 	public class OrdersController : ControllerBase
 	{
 		private readonly IOrderService _orderService;

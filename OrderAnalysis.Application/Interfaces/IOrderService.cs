@@ -1,4 +1,5 @@
 ﻿using OrderAnalysis.Application.DTOs.OrderDtos;
+using OrderAnalysis.Application.DTOs.ReportDto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,6 @@ namespace OrderAnalysis.Application.Interfaces
 	public interface IOrderService
 	{
 		Task CreateOrderAsync(CreateOrderDto createOrderDto);
+		Task<SummaryDto> GetSummaryAsync();
 	}
 }
