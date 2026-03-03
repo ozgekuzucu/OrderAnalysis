@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="3.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OrderAnalysis.Application\OrderAnalysis.Application.csproj" />
+    <ProjectReference Include="..\OrderAnalysis.Domain\OrderAnalysis.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
