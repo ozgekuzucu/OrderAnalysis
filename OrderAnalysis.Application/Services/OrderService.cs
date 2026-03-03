@@ -74,5 +74,31 @@ namespace OrderAnalysis.Application.Services
 				};
 			}).ToList();
 		}
+
+		public async Task<List<LossReportDto>> GetLossReportAsync()
+		{
+			var orders = await _orderRepository.GetAllAsync();
+
+			var urunler = orders.SelectMany(x => x.Items).ToList();
+
+			return urunler.GroupBy(x => x.Urun)
+				.Select(y =>
+					{
+						var komisyon = y.Sum(x => x.SatisFiyat * x.KomisyonOrani / 100);
+						var netKar = y.Sum(y =>
+						{
+							var kar = y.SatisFiyat - y.AlisFiyat - y.KargoBedeli - (y.SatisFiyat * y.KomisyonOrani / 100);
+							return kar * y.Adet;
+						});
+						return new { Urun = y.Key, NetKar = netKar };
+					})
+					.Where(x => x.NetKar < 0)
+					.Select(x => new LossReportDto
+					{
+						Urun = x.Urun,
+						ToplamZarar = Math.Abs(x.NetKar)
+					}).ToList();
+		}
 	}
 }
+

@@ -29,6 +29,12 @@ namespace OrderAnalysis.API.Controllers
 			return Ok(result);
 		}
 
+		[HttpGet("loss")]
+		public async Task<IActionResult> GetLossReport()
+		{
+			var result = await _orderService.GetLossReportAsync();
+			return Ok(result);
+		}
 
 	}
 }
