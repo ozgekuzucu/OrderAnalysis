@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using OrderAnalysis.API.Middlewares;
 using OrderAnalysis.Application.Interfaces;
 using OrderAnalysis.Application.Mappings;
 using OrderAnalysis.Application.Services;
@@ -32,6 +33,7 @@ if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
 	app.UseSwaggerUI();
+	app.UseMiddleware<GlobalExceptionMiddleware>();
 }
 
 app.UseHttpsRedirection();

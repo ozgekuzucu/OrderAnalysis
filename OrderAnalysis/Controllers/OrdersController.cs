@@ -21,5 +21,11 @@ namespace OrderAnalysis.API.Controllers
 			await _orderService.CreateOrderAsync(createOrderDto);
 			return Ok("Sipariş başarıyla eklendi.");
 		}
+
+		[HttpGet("test-error")]
+		public IActionResult TestError()
+		{
+			throw new Exception("Bu bir test hatasıdır!");
+		}
 	}
 }
