@@ -14,5 +14,8 @@ namespace OrderAnalysis.Application.Interfaces
 		Task<SummaryDto> GetSummaryAsync();
 		Task<List<PlatformReportDto>> GetPlatformReportAsync();
 		Task<List<LossReportDto>> GetLossReportAsync();
+		Task<List<AnomalyReportDto>> GetAnomalyReportAsync();
+		Task<List<TrendReportDto>> GetTrendReportAsync();
+		Task<List<RiskReportDto>> GetRiskReportAsync();
 	}
 }

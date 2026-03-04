@@ -36,5 +36,26 @@ namespace OrderAnalysis.API.Controllers
 			return Ok(result);
 		}
 
+		[HttpGet("anomaly")]
+		public async Task<IActionResult> GetAnomalyReport()
+		{
+			var result = await _orderService.GetAnomalyReportAsync();
+			return Ok(result);
+		}
+
+		[HttpGet("trend")]
+		public async Task<IActionResult> GetTrendReport()
+		{
+			var result = await _orderService.GetTrendReportAsync();
+			return Ok(result);
+		}
+
+		[HttpGet("risk")]
+		public async Task<IActionResult> GetRiskReport()
+		{
+			var result = await _orderService.GetRiskReportAsync();
+			return Ok(result);
+		}
+
 	}
 }

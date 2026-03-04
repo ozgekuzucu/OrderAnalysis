@@ -1,14 +1,8 @@
 ﻿using AutoMapper;
-using MongoDB.Bson;
 using OrderAnalysis.Application.DTOs.OrderDtos;
 using OrderAnalysis.Application.DTOs.ReportDto;
 using OrderAnalysis.Application.Interfaces;
 using OrderAnalysis.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrderAnalysis.Application.Services
 {
@@ -98,6 +92,70 @@ namespace OrderAnalysis.Application.Services
 						Urun = x.Urun,
 						ToplamZarar = Math.Abs(x.NetKar)
 					}).ToList();
+		}
+
+		// Her ürünün ortalama satış fiyatından ne kadar saptığını hesaplar
+		public async Task<List<AnomalyReportDto>> GetAnomalyReportAsync()
+		{
+			var orders = await _orderRepository.GetAllAsync();
+
+			var urunler = orders.SelectMany(x => x.Items).ToList();
+
+			return urunler.GroupBy(x => x.Urun).Select(y =>
+			{
+				var ortalama = y.Average(z => z.SatisFiyat);
+				var mevcutFiyat = y.Last().SatisFiyat;
+				var sapma = Math.Round((mevcutFiyat - ortalama) / ortalama * 100, 2);
+
+				return new AnomalyReportDto
+				{
+					Urun = y.Key,
+					OrtalamaSatisFiyat = Math.Round(ortalama, 2),
+					MevcutSatisFiyat = mevcutFiyat,
+					SapmaYuzde = sapma
+				};
+			}).ToList();
+		}
+
+		//Her gün ne kadar sattık, bir önceki güne göre daha mı iyi daha mı kötü?
+		public async Task<List<TrendReportDto>> GetTrendReportAsync()
+		{
+			var orders = await _orderRepository.GetAllAsync();
+			var gunlukData = orders.GroupBy(x => x.Tarih.Date).Select(y => new
+			{
+				Tarih = y.Key,
+				GunlukCiro = y.SelectMany(z => z.Items)
+				.Sum(t => t.SatisFiyat * t.Adet),
+				GunlukNetKar = y.SelectMany(z => z.Items)
+				.Sum(t => (t.SatisFiyat - t.AlisFiyat - t.KargoBedeli - (t.SatisFiyat * t.KomisyonOrani / 100)) * t.Adet)
+			}).OrderBy(x => x.Tarih)
+			.ToList();
+
+			var result = new List<TrendReportDto>();
+
+			for (int i = 0; i < gunlukData.Count; i++)
+			{
+				var degisim = i == 0 ? 0
+					: gunlukData[i - 1].GunlukCiro == 0 ? 0
+			 : Math.Round(
+				 (gunlukData[i].GunlukCiro - gunlukData[i - 1].GunlukCiro)
+				 / gunlukData[i - 1].GunlukCiro * 100, 2);
+
+				result.Add(new TrendReportDto
+				{
+					Tarih = gunlukData[i].Tarih.ToString("yyyy-MM-dd"),
+					GunlukCiro = gunlukData[i].GunlukCiro,
+					GunlukNetKar = gunlukData[i].GunlukNetKar,
+					OncekiGuneGoreDegisimYuzde = degisim
+				});
+
+			}
+			return result;
+		}
+
+		public Task<List<RiskReportDto>> GetRiskReportAsync()
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
