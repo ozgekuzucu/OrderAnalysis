@@ -3,6 +3,7 @@ using OrderAnalysis.Application.DTOs.OrderDtos;
 using OrderAnalysis.Application.DTOs.ReportDto;
 using OrderAnalysis.Application.Interfaces;
 using OrderAnalysis.Domain.Entities;
+using System.Net.NetworkInformation;
 
 namespace OrderAnalysis.Application.Services
 {
@@ -153,9 +154,36 @@ namespace OrderAnalysis.Application.Services
 			return result;
 		}
 
-		public Task<List<RiskReportDto>> GetRiskReportAsync()
+		//// Ürün bazlı ciro ve net kar hesaplayarak kar marjından risk skoru üretir, düşük marj yüksek risk demektir
+		public async Task<List<RiskReportDto>> GetRiskReportAsync()
 		{
-			throw new NotImplementedException();
+			var orders = await _orderRepository.GetAllAsync();
+			var urunListesi = orders.SelectMany(x => x.Items);
+
+			var urunler = urunListesi.GroupBy(x => x.Urun)
+				.Select(y =>
+				{
+					var ciro = y.Sum(z => z.SatisFiyat * z.Adet);
+
+					var netKar = y.Sum(z =>
+					{
+						var kar = z.SatisFiyat - z.AlisFiyat - z.KargoBedeli - (z.SatisFiyat * z.KomisyonOrani / 100);
+						return kar * z.Adet;
+					});
+
+					var karMarji = netKar / ciro * 100;
+					var riskSkoru = Math.Round(100 - karMarji, 2);
+					var riskSeviyesi = riskSkoru >= 90 ? "Yuksek" :
+									   riskSkoru >= 70 ? "Orta" :
+									   "Dusuk";
+					return new RiskReportDto
+					{
+						Urun = y.Key,
+						RiskSkoru = riskSkoru,
+						RiskSeviyesi = riskSeviyesi
+					};
+				}).ToList();
+			return urunler;
 		}
 	}
 }
