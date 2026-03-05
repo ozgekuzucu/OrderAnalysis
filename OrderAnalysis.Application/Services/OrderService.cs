@@ -100,7 +100,7 @@ namespace OrderAnalysis.Application.Services
 		{
 			var orders = await _orderRepository.GetAllAsync();
 
-			var urunler = orders.SelectMany(x => x.Items).ToList();
+			var urunler = orders.OrderBy(x=>x.Tarih).SelectMany(y => y.Items).ToList();
 
 			return urunler.GroupBy(x => x.Urun).Select(y =>
 			{
