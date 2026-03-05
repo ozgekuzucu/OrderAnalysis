@@ -48,16 +48,12 @@ Validation işlemleri:
 
 sınıfları üzerinde tanımlanmıştır.
 
----
-
 ### 📌 Order Seviyesi Kurallar
 
 - `Platform` zorunludur.
 - `Tarih` zorunludur.
 - `Items` zorunludur.
 - `Items` listesi en az 1 eleman içermelidir.
-
----
 
 ### 📌 Ürün (Item) Seviyesi Kurallar
 
@@ -68,8 +64,6 @@ sınıfları üzerinde tanımlanmıştır.
 - `KargoBedeli` 0 veya 0'dan büyük olmalıdır.
 - `Adet` en az 1 olmalıdır.
 
----
-
 ### ❗ Hatalı İstek Durumu
 
 Geçersiz veri gönderildiğinde API:
@@ -78,6 +72,12 @@ Geçersiz veri gönderildiğinde API:
 - ModelState üzerinden detaylı hata mesajları üretir
 
 Bu yapı sayesinde hatalı sipariş kaydı engellenir ve veri bütünlüğü korunur.
+
+---
+
+## 🌐 Global Hata Yakalama (Global Exception Handling)
+
+Uygulamada oluşan tüm beklenmeyen hataları merkezi olarak yakalamak için bir **global exception middleware** uygulanmıştır.
 
 ---
 
